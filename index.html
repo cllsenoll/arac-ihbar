@@ -10,6 +10,8 @@
     <meta name="theme-color" content="#3b82f6">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- HTML5 QR Code Scanner Kütüphanesi -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <!-- OneSignal SDK Entegrasyonu -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -32,6 +34,10 @@
         .qr-scan-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
         .qr-scan-btn:hover { background: #475569; }
         .subtitle { font-size: 14px; color: #94a3b8; }
+        
+        /* QR Kamera Alanı */
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 16px; display: none; background: #0f172a; border: 1px solid #334155; }
+        
         .alert-box { background: #ef4444; color: white; padding: 16px; border-radius: 16px; text-align: center; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); transition: transform 0.1s; }
         .alert-box:active { transform: scale(0.97); }
         .section-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 12px; }
@@ -53,10 +59,13 @@
         <div class="header">
             <div class="plate-container">
                 <div class="car-plate" id="plateDisplay">34ABC123</div>
-                <button class="qr-scan-btn" onclick="openQrScanner()">📷 QR Okut</button>
+                <button class="qr-scan-btn" onclick="startQrScanner()">📷 QR Kamera Aç</button>
             </div>
             <div class="subtitle">Araç Sahibine Anonim Bildirim Gönder</div>
         </div>
+
+        <!-- Kamera Görüntüleme Alanı -->
+        <div id="reader"></div>
 
         <!-- Bildirim İzin Butonu (Araç Sahibi İçin) -->
         <button class="notif-btn" onclick="requestNotificationPermission()">🔔 Bu Cihaza Bildirimleri Aç</button>
@@ -92,12 +101,41 @@
         const carToken = urlParams.get('car') || 'TEST-ARAC';
         document.getElementById('plateDisplay').innerText = carToken.toUpperCase();
 
-        // QR Okut Butonu Fonksiyonu (Farklı bir araç sorgulamak/okutmak için)
-        function openQrScanner() {
-            const newCar = prompt("Lütfen araç plakasını veya QR kod bilgisini girin:", "");
-            if (newCar && newCar.trim() !== "") {
-                window.location.href = `?car=${encodeURIComponent(newCar.trim())}`;
+        let html5QrCode;
+
+        // Kamerayı Açıp QR Kod Tarama Başlatma Fonksiyonu
+        function startQrScanner() {
+            const readerDiv = document.getElementById('reader');
+            readerDiv.style.display = 'block';
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
             }
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // Arka kamerayı tercih et
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText, decodedResult) => {
+                    // QR Kod başarıyla okunduğunda
+                    console.log(`QR Kod okundu: ${decodedText}`);
+                    html5QrCode.stop().then(() => {
+                        readerDiv.style.display = 'none';
+                        // Okunan QR metnini (veya URL içindeki plaka bilgisini) sayfaya yönlendir
+                        window.location.href = `?car=${encodeURIComponent(decodedText.trim())}`;
+                    }).catch(err => {
+                        console.error("Kamera durdurulamadı", err);
+                    });
+                },
+                (errorMessage) => {
+                    // Tarama devam ederken oluşan anlık hatalar (önemsiz, yoksayılabilir)
+                }
+            ).catch(err => {
+                alert("Kamera başlatılamadı! Lütfen tarayıcı izinlerini kontrol edin.");
+                readerDiv.style.display = 'none';
+            });
         }
 
         function setMessage(text) {
