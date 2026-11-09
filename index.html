@@ -25,8 +25,10 @@
         .tag:hover { background: #475569; }
         textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 14px; resize: none; height: 90px; margin-bottom: 16px; outline: none; }
         textarea:focus { border-color: #3b82f6; }
-        .send-btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .send-btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
         .send-btn:hover { background: #2563eb; }
+        .notif-btn { width: 100%; background: #10b981; color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .notif-btn:hover { background: #059669; }
         #statusMessage { margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; }
     </style>
 </head>
@@ -37,6 +39,10 @@
             <div class="car-plate" id="plateDisplay">34ABC123</div>
             <div class="subtitle">Araç Sahibine Anonim Bildirim Gönder</div>
         </div>
+
+        <!-- Bildirim İzin Butonu (Araç Sahibi İçin) -->
+        <button class="notif-btn" onclick="requestNotificationPermission()">🔔 Bu Cihaza Bildirimleri Aç</button>
+        <br><br>
 
         <div class="alert-box" onclick="sendAlert('🚨 ACİL: Aracınızın başından çağrı bırakıldı!')">
             🔔 ÇALDIR / ACİL BİLDİRİM
@@ -104,7 +110,22 @@
             }
         }
 
-        // Service Worker Kaydı (PWA Arka Plan Desteği)
+        // Bildirim İzni İsteme Fonksiyonu
+        function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                alert('Tarayıcınız bildirimleri desteklemiyor.');
+                return;
+            }
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    alert('🎉 Bildirimler başarıyla etkinleştirildi! Artık bu cihaza bildirim alabileceksiniz.');
+                } else {
+                    alert('Bildirim izni reddedildi. Tarayıcı ayarlarından izin vermeniz gerekecek.');
+                }
+            });
+        }
+
+        // Service Worker Kaydı
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
