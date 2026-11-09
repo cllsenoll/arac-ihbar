@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Araç İletişim & İhbar</title>
+    <title>Araç İletişim & İhbar Sistemi</title>
     
     <!-- PWA Manifest ve Tema Renkleri -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#3b82f6">
 
+    <!-- Supabase, QR Generator ve QR Reader Kütüphaneleri -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- HTML5 QR Code Scanner Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <!-- OneSignal SDK Entegrasyonu -->
@@ -28,116 +29,126 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
         .container { width: 100%; max-width: 420px; background: #1e293b; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
+        
+        /* Mod Değiştirme Sekmeleri */
+        .tab-group { display: flex; background: #0f172a; border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid #334155; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .tab-btn.active { background: #3b82f6; color: white; }
+
         .header { text-align: center; margin-bottom: 20px; }
-        .plate-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-        .car-plate { font-size: 24px; font-weight: 800; background: #3b82f6; color: white; display: inline-block; padding: 6px 16px; border-radius: 8px; letter-spacing: 1px; }
-        .qr-scan-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
-        .qr-scan-btn:hover { background: #475569; }
+        .car-plate { font-size: 24px; font-weight: 800; background: #3b82f6; color: white; display: inline-block; padding: 6px 16px; border-radius: 8px; letter-spacing: 1px; margin-bottom: 8px; }
         .subtitle { font-size: 14px; color: #94a3b8; }
         
-        /* QR Kamera Alanı */
-        #reader { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 16px; display: none; background: #0f172a; border: 1px solid #334155; }
+        /* Form Elemanları */
+        input[type="text"] { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 16px; margin-bottom: 12px; text-transform: uppercase; outline: none; }
+        input[type="text"]:focus { border-color: #3b82f6; }
+        textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 14px; resize: none; height: 80px; margin-bottom: 12px; outline: none; }
         
-        .alert-box { background: #ef4444; color: white; padding: 16px; border-radius: 16px; text-align: center; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); transition: transform 0.1s; }
-        .alert-box:active { transform: scale(0.97); }
-        .section-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 12px; }
-        .tags { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-        .tag { background: #334155; border: none; color: #f8fafc; padding: 10px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: left; transition: background 0.2s; }
-        .tag:hover { background: #475569; }
-        textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 14px; resize: none; height: 90px; margin-bottom: 16px; outline: none; }
-        textarea:focus { border-color: #3b82f6; }
-        .send-btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
-        .send-btn:hover { background: #2563eb; }
-        .notif-btn { width: 100%; background: #10b981; color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
-        .notif-btn:hover { background: #059669; }
-        #statusMessage { margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; }
+        .alert-box { background: #ef4444; color: white; padding: 16px; border-radius: 16px; text-align: center; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
+        .section-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 10px; }
+        .tags { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .tag { background: #334155; border: none; color: #f8fafc; padding: 10px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: left; }
+        
+        .btn { width: 100%; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn-blue { background: #3b82f6; }
+        .btn-green { background: #10b981; }
+        .btn-slate { background: #334155; }
+        
+        #qrcode { display: flex; justify-content: center; margin: 16px 0; padding: 16px; background: white; border-radius: 16px; }
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 16px; display: none; background: #0f172a; }
+        #statusMessage { margin-top: 12px; text-align: center; font-size: 14px; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header">
-            <div class="plate-container">
+        <!-- Mod Seçim Sekmeleri -->
+        <div class="tab-group">
+            <button class="tab-btn active" id="tabGuestBtn" onclick="switchTab('guest')">İhbar Et (Misafir)</button>
+            <button class="tab-btn" id="tabOwnerBtn" onclick="switchTab('owner')">Araç Sahibi</button>
+        </div>
+
+        <!-- 1. MİSAFİR / İHBARCI EKRANI -->
+        <div id="guestSection">
+            <div class="header">
                 <div class="car-plate" id="plateDisplay">34ABC123</div>
-                <button class="qr-scan-btn" onclick="startQrScanner()">📷 QR Kamera Aç</button>
+                <div class="subtitle">Araç Sahibine Anında İhbar Gönder</div>
             </div>
-            <div class="subtitle">Araç Sahibine Anonim Bildirim Gönder</div>
+
+            <button class="btn btn-slate" onclick="startQrScanner()">📷 QR Okut / Araç Değiştir</button>
+            <div id="reader"></div>
+
+            <div class="alert-box" onclick="sendAlert('🚨 ACİL: Aracınızın başından çağrı bırakıldı!')">
+                🔔 ÇALDIR / ACİL BİLDİRİM
+            </div>
+
+            <div class="section-title">Hızlı Mesaj Seç</div>
+            <div class="tags">
+                <button class="tag" onclick="setMessage('Aracınızı yanlış park etmişsiniz.')">🚗 Hatalı Park</button>
+                <button class="tag" onclick="setMessage('Farınız açık unuttulmuş.')">💡 Far Açık</button>
+                <button class="tag" onclick="setMessage('Aracınızın camı açık kalmış.')">🪟 Cam Açık</button>
+                <button class="tag" onclick="setMessage('Acil çıkmanız gerekiyor.')">⏳ Acil Bekliyorum</button>
+            </div>
+
+            <textarea id="messageInput" placeholder="Veya özel bir açıklama yazın..."></textarea>
+            <button class="btn btn-blue" onclick="sendMessage()">Bildirimi Gönder</button>
         </div>
 
-        <!-- Kamera Görüntüleme Alanı -->
-        <div id="reader"></div>
+        <!-- 2. ARAÇ SAHİBİ EKRANI (PANEL) -->
+        <div id="ownerSection" style="display: none;">
+            <div class="header">
+                <h2 style="font-size: 20px; margin-bottom: 6px;">Araç Sahibi Paneli</h2>
+                <div class="subtitle">Plakanızı tanımlayın ve QR kodunuzu alın.</div>
+            </div>
 
-        <!-- Bildirim İzin Butonu (Araç Sahibi İçin) -->
-        <button class="notif-btn" onclick="requestNotificationPermission()">🔔 Bu Cihaza Bildirimleri Aç</button>
+            <div class="section-title">1. Plakanızı Girin</div>
+            <input type="text" id="ownerPlateInput" placeholder="Örn: 34ABC123">
 
-        <div class="alert-box" onclick="sendAlert('🚨 ACİL: Aracınızın başından çağrı bırakıldı!')" style="margin-top: 16px;">
-            🔔 ÇALDIR / ACİL BİLDİRİM
+            <div class="section-title">2. Bildirim İznini Etkinleştirin</div>
+            <button class="btn btn-green" onclick="registerOwnerDevice()">🔔 Bu Cihazı Plakaya Bağla</button>
+
+            <div class="section-title">3. Aracınız İçin QR Kod</div>
+            <button class="btn btn-slate" onclick="generateQrCode()">📐 QR Kod Oluştur</button>
+            
+            <div id="qrcode" style="display: none;"></div>
+            <p id="qrDownloadInfo" style="display:none; text-align:center; font-size:12px; color:#94a3b8;">Bu QR kodu yazdırıp aracınızın camına yapıştırabilirsiniz.</p>
         </div>
 
-        <div class="section-title">Hızlı Mesaj Seç</div>
-        <div class="tags">
-            <button class="tag" onclick="setMessage('Aracınızı yanlış park etmişsiniz.')">🚗 Hatalı Park</button>
-            <button class="tag" onclick="setMessage('Farınız açık unuttulmuş.')">💡 Far Açık</button>
-            <button class="tag" onclick="setMessage('Aracınızın camı açık kalmış.')">🪟 Cam Açık</button>
-            <button class="tag" onclick="setMessage('Acil çıkmanız gerekiyor, bekliyorum.')">⏳ Acil Bekliyorum</button>
-        </div>
-
-        <div class="section-title">Veya Özel Mesaj Yazın</div>
-        <textarea id="messageInput" placeholder="Mesajınızı buraya yazın..."></textarea>
-
-        <button class="send-btn" onclick="sendMessage()">Gönder</button>
-        
         <div id="statusMessage"></div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://jwdmsfsnrawbnrycuciv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PiQVFrxJH_sAmtsVZ2g7gg_ax10_24_';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // URL'den araç bilgisini al ve ekrana yansıt
+        // URL parametresinden aracı oku
         const urlParams = new URLSearchParams(window.location.search);
-        const carToken = urlParams.get('car') || 'TEST-ARAC';
-        document.getElementById('plateDisplay').innerText = carToken.toUpperCase();
+        let activeCarToken = urlParams.get('car') || '34ABC123';
+        document.getElementById('plateDisplay').innerText = activeCarToken.toUpperCase();
+        document.getElementById('ownerPlateInput').value = activeCarToken.toUpperCase();
 
-        let html5QrCode;
+        // Sekme Değiştirme (İhbarcı vs Araç Sahibi)
+        function switchTab(mode) {
+            const guestSec = document.getElementById('guestSection');
+            const ownerSec = document.getElementById('ownerSection');
+            const tabGuest = document.getElementById('tabGuestBtn');
+            const tabOwner = document.getElementById('tabOwnerBtn');
 
-        // Kamerayı Açıp QR Kod Tarama Başlatma Fonksiyonu
-        function startQrScanner() {
-            const readerDiv = document.getElementById('reader');
-            readerDiv.style.display = 'block';
-
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
+            if (mode === 'guest') {
+                guestSec.style.display = 'block';
+                ownerSec.style.display = 'none';
+                tabGuest.classList.add('active');
+                tabOwner.classList.remove('active');
+            } else {
+                guestSec.style.display = 'none';
+                ownerSec.style.display = 'block';
+                tabOwner.classList.add('active');
+                tabGuest.classList.remove('active');
             }
-
-            html5QrCode.start(
-                { facingMode: "environment" }, // Arka kamerayı tercih et
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
-                (decodedText, decodedResult) => {
-                    // QR Kod başarıyla okunduğunda
-                    console.log(`QR Kod okundu: ${decodedText}`);
-                    html5QrCode.stop().then(() => {
-                        readerDiv.style.display = 'none';
-                        // Okunan QR metnini (veya URL içindeki plaka bilgisini) sayfaya yönlendir
-                        window.location.href = `?car=${encodeURIComponent(decodedText.trim())}`;
-                    }).catch(err => {
-                        console.error("Kamera durdurulamadı", err);
-                    });
-                },
-                (errorMessage) => {
-                    // Tarama devam ederken oluşan anlık hatalar (önemsiz, yoksayılabilir)
-                }
-            ).catch(err => {
-                alert("Kamera başlatılamadı! Lütfen tarayıcı izinlerini kontrol edin.");
-                readerDiv.style.display = 'none';
-            });
         }
 
+        // --- İHBARCI (GUEST) İŞLEMLERİ ---
         function setMessage(text) {
             document.getElementById('messageInput').value = text;
         }
@@ -149,7 +160,7 @@
         async function sendMessage() {
             const text = document.getElementById('messageInput').value.trim();
             if(!text) {
-                alert('Lütfen bir mesaj yazın veya hazır şablon seçin.');
+                alert('Lütfen bir mesaj yazın veya şablon seçin.');
                 return;
             }
             await submitMessageData(text);
@@ -158,15 +169,16 @@
         async function submitMessageData(content) {
             const statusEl = document.getElementById('statusMessage');
             statusEl.style.color = '#94a3b8';
-            statusEl.innerText = 'Gönderiliyor...';
+            statusEl.innerText = 'Bildirim gönderiliyor...';
 
             try {
+                // Supabase'e mesajı ekle (Plaka bilgisi ile)
                 const { error } = await supabaseClient
                     .from('messages')
-                    .insert([{ car_id: '00000000-0000-0000-0000-000000000000', content: `[Araç: ${carToken.toUpperCase()}] ${content}` }]);
+                    .insert([{ car_id: activeCarToken.toUpperCase(), content: content }]);
 
                 statusEl.style.color = '#22c55e';
-                statusEl.innerText = '✅ Bildirim başarıyla araç sahibine iletildi!';
+                statusEl.innerText = '✅ Bildirim araç sahibine başarıyla iletildi!';
                 document.getElementById('messageInput').value = '';
             } catch (err) {
                 statusEl.style.color = '#22c55e';
@@ -174,28 +186,87 @@
             }
         }
 
-        // Bildirim İzni İsteme Fonksiyonu (OneSignal Destekli)
-        function requestNotificationPermission() {
+        let html5QrCode;
+        function startQrScanner() {
+            const readerDiv = document.getElementById('reader');
+            readerDiv.style.display = 'block';
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    html5QrCode.stop().then(() => {
+                        readerDiv.style.display = 'none';
+                        window.location.href = `?car=${encodeURIComponent(decodedText.trim())}`;
+                    });
+                },
+                (err) => {}
+            ).catch(err => {
+                alert("Kamera başlatılamadı.");
+                readerDiv.style.display = 'none';
+            });
+        }
+
+        // --- ARAÇ SAHİBİ (OWNER) İŞLEMLERİ ---
+        function registerOwnerDevice() {
+            const plate = document.getElementById('ownerPlateInput').value.trim().toUpperCase();
+            if (!plate) {
+                alert("Lütfen bir plaka girin!");
+                return;
+            }
+
             window.OneSignalDeferred = window.OneSignalDeferred || [];
             window.OneSignalDeferred.push(async function(OneSignal) {
                 try {
                     await OneSignal.Slidedown.promptPush();
-                    console.log("OneSignal bildirim izni istendi.");
-                } catch (error) {
-                    console.error("Bildirim izni istenirken hata oluştu:", error);
-                    if ('Notification' in window) {
-                        Notification.requestPermission();
+                    const userId = await OneSignal.User.PushSubscription.id;
+                    
+                    if (userId) {
+                        // Supabase 'vehicles' tablosuna plaka <-> OneSignal cihaz ID'sini kaydet
+                        await supabaseClient
+                            .from('vehicles')
+                            .upsert([{ car_token: plate, onesignal_id: userId }]);
+                        
+                        alert(`🎉 Başarılı! ${plate} plakalı aracınız bu cihaza bağlandı.`);
                     }
+                } catch (error) {
+                    console.error("Cihaz eşleme hatası:", error);
+                    alert("Bildirim izni alınırken bir sorun oluştu.");
                 }
             });
+        }
+
+        function generateQrCode() {
+            const plate = document.getElementById('ownerPlateInput').value.trim().toUpperCase();
+            if (!plate) {
+                alert("Lütfen önce bir plaka girin!");
+                return;
+            }
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            qrContainer.style.display = 'flex';
+
+            // Mevcut sitenin URL'sini alıp parametre ekleyerek QR kod üretir
+            const qrUrl = `${window.location.origin}${window.location.pathname}?car=${encodeURIComponent(plate)}`;
+            
+            new QRCode(qrContainer, {
+                text: qrUrl,
+                width: 180,
+                height: 180
+            });
+
+            document.getElementById('qrDownloadInfo').style.display = 'block';
         }
 
         // Service Worker Kaydı
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((reg) => console.log('Service Worker kayıt başarılı:', reg.scope))
-                    .catch((err) => console.log('Service Worker kayıt hatası:', err));
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW hatası:', err));
             });
         }
     </script>
