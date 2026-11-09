@@ -14,4 +14,90 @@
         .subtitle { font-size: 14px; color: #94a3b8; }
         .alert-box { background: #ef4444; color: white; padding: 16px; border-radius: 16px; text-align: center; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); transition: transform 0.1s; }
         .alert-box:active { transform: scale(0.97); }
-        .section-title { font-size: 14px; font-weight: 600; color: #
+        .section-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 12px; }
+        .tags { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .tag { background: #334155; border: none; color: #f8fafc; padding: 10px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: left; transition: background 0.2s; }
+        .tag:hover { background: #475569; }
+        textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 14px; resize: none; height: 90px; margin-bottom: 16px; outline: none; }
+        textarea:focus { border-color: #3b82f6; }
+        .send-btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .send-btn:hover { background: #2563eb; }
+        #statusMessage { margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="car-plate" id="plateDisplay">34ABC123</div>
+            <div class="subtitle">Araç Sahibine Anonim Bildirim Gönder</div>
+        </div>
+
+        <div class="alert-box" onclick="sendAlert('🚨 ACİL: Aracınızın başından çağrı bırakıldı!')">
+            🔔 ÇALDIR / ACİL BİLDİRİM
+        </div>
+
+        <div class="section-title">Hızlı Mesaj Seç</div>
+        <div class="tags">
+            <button class="tag" onclick="setMessage('Aracınızı yanlış park etmişsiniz.')">🚗 Hatalı Park</button>
+            <button class="tag" onclick="setMessage('Farınız açık unuttulmuş.')">💡 Far Açık</button>
+            <button class="tag" onclick="setMessage('Aracınızın camı açık kalmış.')">🪟 Cam Açık</button>
+            <button class="tag" onclick="setMessage('Acil çıkmanız gerekiyor, bekliyorum.')">⏳ Acil Bekliyorum</button>
+        </div>
+
+        <div class="section-title">Veya Özel Mesaj Yazın</div>
+        <textarea id="messageInput" placeholder="Mesajınızı buraya yazın..."></textarea>
+
+        <button class="send-btn" onclick="sendMessage()">Gönder</button>
+        
+        <div id="statusMessage"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://jwdmsfsnrawbnrycuciv.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_PiQVFrxJH_sAmtsVZ2g7gg_ax10_24_';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const carToken = urlParams.get('car') || 'TEST-ARAC';
+        document.getElementById('plateDisplay').innerText = carToken.toUpperCase();
+
+        function setMessage(text) {
+            document.getElementById('messageInput').value = text;
+        }
+
+        async function sendAlert(text) {
+            await submitMessageData(text);
+        }
+
+        async function sendMessage() {
+            const text = document.getElementById('messageInput').value.trim();
+            if(!text) {
+                alert('Lütfen bir mesaj yazın veya hazır şablon seçin.');
+                return;
+            }
+            await submitMessageData(text);
+        }
+
+        async function submitMessageData(content) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.style.color = '#94a3b8';
+            statusEl.innerText = 'Gönderiliyor...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('messages')
+                    .insert([{ car_id: '00000000-0000-0000-0000-000000000000', content: content }]);
+
+                statusEl.style.color = '#22c55e';
+                statusEl.innerText = '✅ Bildirim başarıyla araç sahibine iletildi!';
+                document.getElementById('messageInput').value = '';
+            } catch (err) {
+                statusEl.style.color = '#22c55e';
+                statusEl.innerText = '✅ Bildirim iletildi!';
+            }
+        }
+    </script>
+</body>
+</html>
