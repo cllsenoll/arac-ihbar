@@ -1,0 +1,15 @@
+{
+  "name": "Araç İletişim ve İhbar",
+  "short_name": "Araç İhbar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/fluents/96/car.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ]
+}
