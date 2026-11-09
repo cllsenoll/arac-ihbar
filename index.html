@@ -26,8 +26,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
         .container { width: 100%; max-width: 420px; background: #1e293b; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
-        .header { text-align: center; margin-bottom: 24px; }
-        .car-plate { font-size: 24px; font-weight: 800; background: #3b82f6; color: white; display: inline-block; padding: 6px 16px; border-radius: 8px; margin-bottom: 8px; letter-spacing: 1px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .plate-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .car-plate { font-size: 24px; font-weight: 800; background: #3b82f6; color: white; display: inline-block; padding: 6px 16px; border-radius: 8px; letter-spacing: 1px; }
+        .qr-scan-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
+        .qr-scan-btn:hover { background: #475569; }
         .subtitle { font-size: 14px; color: #94a3b8; }
         .alert-box { background: #ef4444; color: white; padding: 16px; border-radius: 16px; text-align: center; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); transition: transform 0.1s; }
         .alert-box:active { transform: scale(0.97); }
@@ -39,7 +42,7 @@
         textarea:focus { border-color: #3b82f6; }
         .send-btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
         .send-btn:hover { background: #2563eb; }
-        .notif-btn { width: 100%; background: #10b981; color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .notif-btn { width: 100%; background: #10b981; color: white; border: none; padding: 10px; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
         .notif-btn:hover { background: #059669; }
         #statusMessage { margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; }
     </style>
@@ -48,15 +51,17 @@
 
     <div class="container">
         <div class="header">
-            <div class="car-plate" id="plateDisplay">34ABC123</div>
+            <div class="plate-container">
+                <div class="car-plate" id="plateDisplay">34ABC123</div>
+                <button class="qr-scan-btn" onclick="openQrScanner()">📷 QR Okut</button>
+            </div>
             <div class="subtitle">Araç Sahibine Anonim Bildirim Gönder</div>
         </div>
 
         <!-- Bildirim İzin Butonu (Araç Sahibi İçin) -->
         <button class="notif-btn" onclick="requestNotificationPermission()">🔔 Bu Cihaza Bildirimleri Aç</button>
-        <br><br>
 
-        <div class="alert-box" onclick="sendAlert('🚨 ACİL: Aracınızın başından çağrı bırakıldı!')">
+        <div class="alert-box" onclick="sendAlert('🚨 ACİL: Aracınızın başından çağrı bırakıldı!')" style="margin-top: 16px;">
             🔔 ÇALDIR / ACİL BİLDİRİM
         </div>
 
@@ -82,9 +87,18 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // URL'den araç bilgisini al ve ekrana yansıt
         const urlParams = new URLSearchParams(window.location.search);
         const carToken = urlParams.get('car') || 'TEST-ARAC';
         document.getElementById('plateDisplay').innerText = carToken.toUpperCase();
+
+        // QR Okut Butonu Fonksiyonu (Farklı bir araç sorgulamak/okutmak için)
+        function openQrScanner() {
+            const newCar = prompt("Lütfen araç plakasını veya QR kod bilgisini girin:", "");
+            if (newCar && newCar.trim() !== "") {
+                window.location.href = `?car=${encodeURIComponent(newCar.trim())}`;
+            }
+        }
 
         function setMessage(text) {
             document.getElementById('messageInput').value = text;
@@ -111,7 +125,7 @@
             try {
                 const { error } = await supabaseClient
                     .from('messages')
-                    .insert([{ car_id: '00000000-0000-0000-0000-000000000000', content: content }]);
+                    .insert([{ car_id: '00000000-0000-0000-0000-000000000000', content: `[Araç: ${carToken.toUpperCase()}] ${content}` }]);
 
                 statusEl.style.color = '#22c55e';
                 statusEl.innerText = '✅ Bildirim başarıyla araç sahibine iletildi!';
@@ -131,7 +145,6 @@
                     console.log("OneSignal bildirim izni istendi.");
                 } catch (error) {
                     console.error("Bildirim izni istenirken hata oluştu:", error);
-                    // Yedek olarak standart tarayıcı iznine düş
                     if ('Notification' in window) {
                         Notification.requestPermission();
                     }
