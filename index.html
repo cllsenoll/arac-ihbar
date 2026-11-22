@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,7 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
-        .container { width: 100%; max-width: 420px; background: #1e293b; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
+        .container { width: 100%; max-width: 440px; background: #1e293b; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
         
         /* Mod Değiştirme Sekmeleri */
         .tab-group { display: flex; background: #0f172a; border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid #334155; }
@@ -38,23 +38,36 @@
         .header { text-align: center; margin-bottom: 20px; }
         .car-plate { font-size: 24px; font-weight: 800; background: #3b82f6; color: white; display: inline-block; padding: 6px 16px; border-radius: 8px; letter-spacing: 1px; margin-bottom: 8px; }
         .subtitle { font-size: 14px; color: #94a3b8; }
+
+        .profile-badge { background: #0f172a; border: 1px dashed #475569; border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #cbd5e1; margin-bottom: 14px; word-break: break-all; }
+        .profile-badge span { color: #60a5fa; font-weight: 700; }
         
         /* Form Elemanları */
-        input[type="text"] { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 16px; margin-bottom: 12px; text-transform: uppercase; outline: none; }
+        input[type="text"] { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 15px; margin-bottom: 10px; text-transform: uppercase; outline: none; }
         input[type="text"]:focus { border-color: #3b82f6; }
         textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; padding: 12px; font-size: 14px; resize: none; height: 80px; margin-bottom: 12px; outline: none; }
         
         .alert-box { background: #ef4444; color: white; padding: 16px; border-radius: 16px; text-align: center; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
-        .section-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 10px; }
+        .section-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px; }
         .tags { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .tag { background: #334155; border: none; color: #f8fafc; padding: 10px; border-radius: 10px; font-size: 13px; cursor: pointer; text-align: left; }
         
-        .btn { width: 100%; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn { width: 100%; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         .btn-blue { background: #3b82f6; }
         .btn-green { background: #10b981; }
         .btn-slate { background: #334155; }
+        .btn-sm { width: auto; padding: 6px 10px; font-size: 12px; margin-bottom: 0; }
+
+        /* Araç Listesi */
+        .vehicle-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; margin-bottom: 14px; }
+        .vehicle-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #334155; padding: 10px 12px; border-radius: 12px; }
+        .vehicle-plate-text { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
+        .vehicle-actions { display: flex; gap: 6px; }
         
-        #qrcode { display: flex; justify-content: center; margin: 16px 0; padding: 16px; background: white; border-radius: 16px; }
+        #qrcodeBox { display: none; flex-direction: column; align-items: center; margin: 14px 0; padding: 16px; background: white; border-radius: 16px; color: #0f172a; }
+        #qrcode { display: flex; justify-content: center; margin-bottom: 8px; }
+        #qrLabel { font-size: 13px; font-weight: 700; }
+
         #reader { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 16px; display: none; background: #0f172a; }
         #statusMessage { margin-top: 12px; text-align: center; font-size: 14px; font-weight: 500; }
     </style>
@@ -85,7 +98,7 @@
             <div class="section-title">Hızlı Mesaj Seç</div>
             <div class="tags">
                 <button class="tag" onclick="setMessage('Aracınızı yanlış park etmişsiniz.')">🚗 Hatalı Park</button>
-                <button class="tag" onclick="setMessage('Farınız açık unuttulmuş.')">💡 Far Açık</button>
+                <button class="tag" onclick="setMessage('Farınız açık unutulmuş.')">💡 Far Açık</button>
                 <button class="tag" onclick="setMessage('Aracınızın camı açık kalmış.')">🪟 Cam Açık</button>
                 <button class="tag" onclick="setMessage('Acil çıkmanız gerekiyor.')">⏳ Acil Bekliyorum</button>
             </div>
@@ -94,24 +107,30 @@
             <button class="btn btn-blue" onclick="sendMessage()">Bildirimi Gönder</button>
         </div>
 
-        <!-- 2. ARAÇ SAHİBİ EKRANI (PANEL) -->
+        <!-- 2. ARAÇ SAHİBİ EKRANI (PROFİL & ÇOKLU ARAÇ) -->
         <div id="ownerSection" style="display: none;">
             <div class="header">
-                <h2 style="font-size: 20px; margin-bottom: 6px;">Araç Sahibi Paneli</h2>
-                <div class="subtitle">Plakanızı tanımlayın ve QR kodunuzu alın.</div>
+                <h2 style="font-size: 20px; margin-bottom: 6px;">Araç Sahibi Profili</h2>
+                <div class="subtitle">Profilinizi cihaza bağlayın ve araçlarınız için QR üretin.</div>
             </div>
 
-            <div class="section-title">1. Plakanızı Girin</div>
-            <input type="text" id="ownerPlateInput" placeholder="Örn: 34ABC123">
+            <div class="profile-badge">
+                Profil ID: <span id="profileIdDisplay">-</span>
+            </div>
 
-            <div class="section-title">2. Bildirim İznini Etkinleştirin</div>
-            <button class="btn btn-green" onclick="registerOwnerDevice()">🔔 Bu Cihazı Plakaya Bağla</button>
+            <button class="btn btn-green" onclick="registerOwnerProfile()">🔔 Bu Cihazı Profile Bağla (Bildirim Aç)</button>
 
-            <div class="section-title">3. Aracınız İçin QR Kod</div>
-            <button class="btn btn-slate" onclick="generateQrCode()">📐 QR Kod Oluştur</button>
-            
-            <div id="qrcode" style="display: none;"></div>
-            <p id="qrDownloadInfo" style="display:none; text-align:center; font-size:12px; color:#94a3b8;">Bu QR kodu yazdırıp aracınızın camına yapıştırabilirsiniz.</p>
+            <div class="section-title" style="margin-top: 10px;">Profilime Araç Ekle</div>
+            <input type="text" id="newPlateInput" placeholder="Plaka girin (Örn: 34ABC123)">
+            <button class="btn btn-blue" onclick="addVehicleToProfile()">+ Aracı Profile Ekle</button>
+
+            <div class="section-title">Kayıtlı Araçlarım</div>
+            <div id="vehicleList" class="vehicle-list"></div>
+
+            <div id="qrcodeBox">
+                <div id="qrcode"></div>
+                <div id="qrLabel"></div>
+            </div>
         </div>
 
         <div id="statusMessage"></div>
@@ -122,13 +141,37 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_PiQVFrxJH_sAmtsVZ2g7gg_ax10_24_';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Kalıcı Profil ID oluştur veya getir
+        function getOrCreateProfileId() {
+            let pid = localStorage.getItem('kops_profile_id');
+            if (!pid) {
+                pid = 'PROF-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString(36).slice(-4).toUpperCase();
+                localStorage.setItem('kops_profile_id', pid);
+            }
+            return pid;
+        }
+
+        const profileId = getOrCreateProfileId();
+        document.getElementById('profileIdDisplay').innerText = profileId;
+
+        // Profildeki araçları localStorage'da tut (ve Supabase ile senkronize et)
+        function getSavedVehicles() {
+            try {
+                return JSON.parse(localStorage.getItem(`kops_vehicles_${profileId}`) || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function setSavedVehicles(list) {
+            localStorage.setItem(`kops_vehicles_${profileId}`, JSON.stringify(list));
+        }
+
         // URL parametresinden aracı oku
         const urlParams = new URLSearchParams(window.location.search);
-        let activeCarToken = urlParams.get('car') || '34ABC123';
-        document.getElementById('plateDisplay').innerText = activeCarToken.toUpperCase();
-        document.getElementById('ownerPlateInput').value = activeCarToken.toUpperCase();
+        let activeCarToken = (urlParams.get('car') || '34ABC123').toUpperCase();
+        document.getElementById('plateDisplay').innerText = activeCarToken;
 
-        // Sekme Değiştirme (İhbarcı vs Araç Sahibi)
         function switchTab(mode) {
             const guestSec = document.getElementById('guestSection');
             const ownerSec = document.getElementById('ownerSection');
@@ -145,6 +188,7 @@
                 ownerSec.style.display = 'block';
                 tabOwner.classList.add('active');
                 tabGuest.classList.remove('active');
+                renderVehicleList();
             }
         }
 
@@ -159,7 +203,7 @@
 
         async function sendMessage() {
             const text = document.getElementById('messageInput').value.trim();
-            if(!text) {
+            if (!text) {
                 alert('Lütfen bir mesaj yazın veya şablon seçin.');
                 return;
             }
@@ -172,17 +216,19 @@
             statusEl.innerText = 'Bildirim gönderiliyor...';
 
             try {
-                // Supabase'e mesajı ekle (Plaka bilgisi ile)
                 const { error } = await supabaseClient
                     .from('messages')
-                    .insert([{ car_id: activeCarToken.toUpperCase(), content: content }]);
+                    .insert([{ car_id: activeCarToken, content: content }]);
+
+                if (error) throw error;
 
                 statusEl.style.color = '#22c55e';
-                statusEl.innerText = '✅ Bildirim araç sahibine başarıyla iletildi!';
+                statusEl.innerText = `✅ ${activeCarToken} plakalı aracın sahibine bildirim iletildi!`;
                 document.getElementById('messageInput').value = '';
             } catch (err) {
-                statusEl.style.color = '#22c55e';
-                statusEl.innerText = '✅ Bildirim iletildi!';
+                console.error('Mesaj gönderme hatası:', err);
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = '⚠️ Mesaj kaydedilirken bir sorun oluştu.';
             }
         }
 
@@ -201,66 +247,121 @@
                 (decodedText) => {
                     html5QrCode.stop().then(() => {
                         readerDiv.style.display = 'none';
-                        window.location.href = `?car=${encodeURIComponent(decodedText.trim())}`;
+                        try {
+                            const parsedUrl = new URL(decodedText.trim());
+                            const carParam = parsedUrl.searchParams.get('car');
+                            if (carParam) {
+                                window.location.href = `?car=${encodeURIComponent(carParam.trim().toUpperCase())}`;
+                                return;
+                            }
+                        } catch (_) {}
+                        window.location.href = `?car=${encodeURIComponent(decodedText.trim().toUpperCase())}`;
                     });
                 },
-                (err) => {}
-            ).catch(err => {
+                () => {}
+            ).catch(() => {
                 alert("Kamera başlatılamadı.");
                 readerDiv.style.display = 'none';
             });
         }
 
         // --- ARAÇ SAHİBİ (OWNER) İŞLEMLERİ ---
-        function registerOwnerDevice() {
-            const plate = document.getElementById('ownerPlateInput').value.trim().toUpperCase();
+        function registerOwnerProfile() {
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            window.OneSignalDeferred.push(async function(OneSignal) {
+                try {
+                    await OneSignal.Slidedown.promptPush();
+                    const subscriptionId = OneSignal.User.PushSubscription.id;
+
+                    if (!subscriptionId) {
+                        alert("Bildirim aboneliği henüz oluşmadı. Tarayıcı bildirim iznini onayladığınızdan emin olun.");
+                        return;
+                    }
+
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .upsert([{ profile_id: profileId, onesignal_id: subscriptionId }], { onConflict: 'profile_id' });
+
+                    if (error) throw error;
+
+                    alert(`🎉 Profil (${profileId}) bu cihaza bağlandı!`);
+                } catch (error) {
+                    console.error("Profil eşleme hatası:", error);
+                    alert("Cihaz profile bağlanırken bir hata oluştu.");
+                }
+            });
+        }
+
+        async function addVehicleToProfile() {
+            const input = document.getElementById('newPlateInput');
+            const plate = input.value.trim().toUpperCase();
             if (!plate) {
                 alert("Lütfen bir plaka girin!");
                 return;
             }
 
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            window.OneSignalDeferred.push(async function(OneSignal) {
-                try {
-                    await OneSignal.Slidedown.promptPush();
-                    const userId = await OneSignal.User.PushSubscription.id;
-                    
-                    if (userId) {
-                        // Supabase 'vehicles' tablosuna plaka <-> OneSignal cihaz ID'sini kaydet
-                        await supabaseClient
-                            .from('vehicles')
-                            .upsert([{ car_token: plate, onesignal_id: userId }]);
-                        
-                        alert(`🎉 Başarılı! ${plate} plakalı aracınız bu cihaza bağlandı.`);
-                    }
-                } catch (error) {
-                    console.error("Cihaz eşleme hatası:", error);
-                    alert("Bildirim izni alınırken bir sorun oluştu.");
-                }
-            });
+            const currentList = getSavedVehicles();
+            if (!currentList.includes(plate)) {
+                currentList.push(plate);
+                setSavedVehicles(currentList);
+            }
+
+            try {
+                await supabaseClient
+                    .from('vehicles')
+                    .upsert([{ car_token: plate, profile_id: profileId }], { onConflict: 'car_token' });
+            } catch (err) {
+                console.error("Araç kaydı uyarısı:", err);
+            }
+
+            input.value = '';
+            renderVehicleList();
+            showQrForPlate(plate);
         }
 
-        function generateQrCode() {
-            const plate = document.getElementById('ownerPlateInput').value.trim().toUpperCase();
-            if (!plate) {
-                alert("Lütfen önce bir plaka girin!");
+        function removeVehicle(plate) {
+            const updated = getSavedVehicles().filter(item => item !== plate);
+            setSavedVehicles(updated);
+            renderVehicleList();
+        }
+
+        function renderVehicleList() {
+            const listEl = document.getElementById('vehicleList');
+            const vehicles = getSavedVehicles();
+
+            if (vehicles.length === 0) {
+                listEl.innerHTML = '<div style="font-size:13px; color:#94a3b8;">Henüz profilinize araç eklenmemiş.</div>';
                 return;
             }
 
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-            qrContainer.style.display = 'flex';
+            listEl.innerHTML = vehicles.map(plate => `
+                <div class="vehicle-item">
+                    <span class="vehicle-plate-text">${plate}</span>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-slate btn-sm" onclick="showQrForPlate('${plate}')">QR Göster</button>
+                        <button class="btn btn-sm" style="background:#7f1d1d;" onclick="removeVehicle('${plate}')">Sil</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            // Mevcut sitenin URL'sini alıp parametre ekleyerek QR kod üretir
+        function showQrForPlate(plate) {
+            const box = document.getElementById('qrcodeBox');
+            const qrContainer = document.getElementById('qrcode');
+            const qrLabel = document.getElementById('qrLabel');
+
+            qrContainer.innerHTML = '';
+            box.style.display = 'flex';
+
             const qrUrl = `${window.location.origin}${window.location.pathname}?car=${encodeURIComponent(plate)}`;
-            
+
             new QRCode(qrContainer, {
                 text: qrUrl,
-                width: 180,
-                height: 180
+                width: 170,
+                height: 170
             });
 
-            document.getElementById('qrDownloadInfo').style.display = 'block';
+            qrLabel.innerText = `${plate} — Cam Etiketi QR Kodu`;
         }
 
         // Service Worker Kaydı
